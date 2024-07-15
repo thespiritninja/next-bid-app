@@ -1,6 +1,3 @@
-import { auth } from "@/auth";
-import { SignIn } from "@/components/SignIn";
-import { SignOut } from "@/components/SignOut";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { database } from "@/db/database";
@@ -9,26 +6,16 @@ import { revalidatePath } from "next/cache";
 
 export default async function Home() {
   const bidsFetched = await database.query.bids.findMany();
-  const session = await auth();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1> NextJS best practices</h1>
-      {!session?.user ? <SignIn /> : <SignOut />}
-      {session?.user && <h2>Welcome {session?.user?.name}</h2>}
-      <form
-        action={async (formData: FormData) => {
-          "use server";
-          const bidVal = parseInt(formData.get("bid") as string, 10);
-          await database.insert(bids).values({ amount: bidVal });
-          revalidatePath("/");
-        }}
-      >
-        <Input name="bid" placeholder="Bids!" type="number" />
-        <Button type="submit">Click to submit</Button>
-      </form>
-      {bidsFetched?.map((bid) => (
-        <div key={bid.id}>{bid.id}</div>
-      ))}
+    <main className="container mx-auto py-10 space-y-5">
+      <h2 className="font-bold text-2xl">Listed Items</h2>
+      <div className="grid grid-cols-4 gap-3 ">
+        {bidsFetched?.map((bid) => (
+          <div className="border p-8  rounded-xl" key={bid.id}>
+            {bid.id}
+          </div>
+        ))}
+      </div>
     </main>
   );
 }
